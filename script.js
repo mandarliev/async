@@ -64,6 +64,35 @@ const getCountryData = function (country) {
     });
 };
 
+const whereAmI = function (lat, lng) {
+  fetch(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+  )
+    .then(res => {
+      if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.countryName}`);
+
+      return fetch(`https://restcountries.com/v2/name/${data.countryName}`);
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Country not found (${res.status})`);
+
+      return res.json();
+    })
+    .then(data => renderCountry(data[0]))
+    .catch(err => {
+      console.log(`${err} 💥💥💥`);
+    });
+};
+// whereAmI(52.508, 13.381);
+// whereAmI(-33.933, 18.474);
+
 btn.addEventListener('click', function () {
-  getCountryData('australia');
+  getCountryData('germany');
 });
+
+whereAmI(52.508, 13.381);
