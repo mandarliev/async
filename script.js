@@ -51,7 +51,7 @@ const getCountryData = function (country) {
       // Country 2
       return getJSON(
         `https://restcountries.com/v2/alpha/${neighbour}`,
-        'Country not found'
+        'Country not found',
       );
     })
     .then(data => renderCountry(data, 'neighbour'))
@@ -66,7 +66,7 @@ const getCountryData = function (country) {
 
 const whereAmI = function (lat, lng) {
   fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
   )
     .then(res => {
       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
@@ -96,3 +96,11 @@ btn.addEventListener('click', function () {
 });
 
 whereAmI(52.508, 13.381);
+
+console.log('Test Start');
+setTimeout(() => console.log('0 sec timer'), 0);
+Promise.resolve('Resolved promise 1').then(res => console.log(res));
+Promise.resolve('Resolved promise 2').then(res => {
+  console.log(res);
+});
+console.log('Test end');
