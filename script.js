@@ -34,52 +34,6 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
   });
 };
 
-// const wait = function (seconds) {
-//   return new Promise(function (resolve) {
-//     setTimeout(resolve, seconds * 1000);
-//   });
-// };
-
-// const imgContainer = document.querySelector('.images');
-
-// const createImage = imgPath => {
-//   return new Promise((resolve, reject) => {
-//     const img = document.createElement('img');
-//     img.src = imgPath;
-
-//     img.addEventListener('load', () => {
-//       imgContainer.append(img);
-//       resolve(img);
-//     });
-
-//     img.addEventListener('error', () => {
-//       reject(new Error('Image not found'));
-//     });
-//   });
-// };
-
-// let currentImg;
-
-// createImage('img/img-1.jpg')
-//   .then(img => {
-//     currentImg = img;
-//     console.log('Image 1 loaded');
-//     return wait(2);
-//   })
-//   .then(() => {
-//     currentImg.style.display = 'none';
-//     return createImage('img/img-2.jpg');
-//   })
-//   .then(img => {
-//     currentImg = img;
-//     console.log('Image 2 loaded');
-//     return wait(2);
-//   })
-//   .then(() => {
-//     currentImg.style.display = 'none';
-//   })
-//   .catch(err => console.error(err));
-
 // Promisifying the Geolocation API
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
@@ -88,24 +42,47 @@ const getPosition = function () {
 };
 
 const whereAmI = async () => {
-  // Geolocation
-  const pos = await getPosition();
-  const { latitude: lat, longitude: lng } = pos.coords;
+  try {
+    // Geolocation
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
 
-  // Reverse geocoding
-  const resGeo = await fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
-  );
-  const dataGeo = await resGeo.json();
-  console.log(dataGeo);
+    // Reverse geocoding
+    const resGeo = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
+    );
 
-  // Country data
-  const res = await fetch(
-    `https://restcountries.com/v2/name/${dataGeo.countryCode}`,
-  );
-  const data = await res.json();
-  console.log(data);
-  renderCountry(data[0]);
+    if (!resGeo.ok) {
+      throw new Error('Problem getting location data');
+    }
+
+    const dataGeo = await resGeo.json();
+    console.log(dataGeo);
+
+    // Country data
+    const res = await fetch(
+      `https://restcountries.com/v2/name/${dataGeo.countryCode}`,
+    );
+
+    if (!res.ok) {
+      throw new Error('Problem getting country data');
+    }
+    const data = await res.json();
+    console.log(data);
+    renderCountry(data[0]);
+  } catch (err) {
+    console.error(`${err} 😑`);
+    renderError(`😑 ${err.message}`);
+  }
 };
 whereAmI();
+
 console.log('first');
+
+// try {
+//   let y = 1;
+//   const x = 2;
+//   y = 3;
+// } catch (err) {
+//   alert(err.message);
+// }
