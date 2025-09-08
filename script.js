@@ -64,10 +64,15 @@ const getCountryData = function (country) {
     });
 };
 
-const whereAmI = function (lat, lng) {
-  fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
-  )
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+
+      return fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`,
+      );
+    })
     .then(res => {
       if (!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
       return res.json();
@@ -91,9 +96,7 @@ const whereAmI = function (lat, lng) {
 // whereAmI(52.508, 13.381);
 // whereAmI(-33.933, 18.474);
 
-btn.addEventListener('click', function () {
-  getCountryData('germany');
-});
+btn.addEventListener('click', whereAmI);
 
 // whereAmI(52.508, 13.381);
 
@@ -105,36 +108,49 @@ btn.addEventListener('click', function () {
 // });
 // console.log('Test end');
 
-const lotteryPromise = new Promise(function (resolve, reject) {
-  console.log('Lottery draw is happening 🔮');
-  setTimeout(function () {
-    if (Math.random() >= 0.5) {
-      resolve(`YOU WIN 🏆`);
-    } else {
-      reject(new Error(`You lost your money 💩`));
-    }
-  }, 2000);
-});
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('Lottery draw is happening 🔮');
+//   setTimeout(function () {
+//     if (Math.random() >= 0.5) {
+//       resolve(`YOU WIN 🏆`);
+//     } else {
+//       reject(new Error(`You lost your money 💩`));
+//     }
+//   }, 2000);
+// });
 
-lotteryPromise
-  .then(res => {
-    console.log(res);
-  })
-  .catch(err => console.log(err));
+// lotteryPromise
+//   .then(res => {
+//     console.log(res);
+//   })
+//   .catch(err => console.log(err));
 
-// Promisifying setTimeout
-const wait = seconds => {
-  return new Promise(resolve => {
-    setTimeout(resolve, seconds * 1000);
+// // Promisifying setTimeout
+// const wait = seconds => {
+//   return new Promise(resolve => {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// wait(2)
+//   .then(() => {
+//     console.log('I waited for 2 seconds');
+//     return wait(1);
+//   })
+//   .then(() => console.log('I waited for 1 second'));
+
+// Promise.resolve('abc').then(x => console.log(x));
+// Promise.reject(new Error('Problem!')).catch(x => console.log(x));
+
+const getPosition = () => {
+  return new Promise((resolve, reject) => {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err),
+    // );
+    // The below code is exactly the same as the one above
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-wait(2)
-  .then(() => {
-    console.log('I waited for 2 seconds');
-    return wait(1);
-  })
-  .then(() => console.log('I waited for 1 second'));
-
-Promise.resolve('abc').then(x => console.log(x));
-Promise.reject(new Error('Problem!')).catch(x => console.log(x));
+getPosition().then(pos => console.log(pos));
