@@ -96,17 +96,58 @@ const getJSON = function (url, errorMsg = 'Something went wrong') {
 //   console.log('3: Finished getting location');
 // })();
 
-const get3Countries = async (c1, c2, c3) => {
-  try {
-    const data = Promise.all([
-      getJSON(`https://restcountries.com/v2/name/${c1}`),
-      getJSON(`https://restcountries.com/v2/name/${c2}`),
-      getJSON(`https://restcountries.com/v2/name/${c3}`),
-    ]);
-    console.log((await data).map(d => d[0].capital));
-  } catch (error) {
-    console.error(error);
-  }
+// const get3Countries = async (c1, c2, c3) => {
+//   try {
+//     const data = Promise.all([
+//       getJSON(`https://restcountries.com/v2/name/${c1}`),
+//       getJSON(`https://restcountries.com/v2/name/${c2}`),
+//       getJSON(`https://restcountries.com/v2/name/${c3}`),
+//     ]);
+//     console.log((await data).map(d => d[0].capital));
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+// get3Countries('bulgaria', 'canada', 'tanzania');
+(async () => {
+  const res = await Promise.race([
+    getJSON(`https://restcountries.com/v2/name/italy`),
+    getJSON(`https://restcountries.com/v2/name/egypt`),
+    getJSON(`https://restcountries.com/v2/name/mexico`),
+  ]);
+  console.log(res[0]);
+})();
+
+const timeout = s => {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error('Request took too long!'));
+    }, s * 1000);
+  });
 };
 
-get3Countries('bulgaria', 'canada', 'tanzania');
+Promise.race([
+  getJSON(`https://restcountries.com/v2/name/germany`),
+  timeout(0.15),
+])
+  .then(res => console.log(res[0]))
+  .catch(err => console.error(err));
+
+// Promise.allSettled
+Promise.allSettled([
+  Promise.resolve('Success'),
+  Promise.reject('Error'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+// Promise.any [ES2021]
+Promise.any([
+  Promise.reject('Error'),
+  Promise.resolve('Success'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
